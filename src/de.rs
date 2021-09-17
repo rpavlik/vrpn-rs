@@ -40,13 +40,15 @@ impl<'de, T: Buf> Deserializer<'de, T> {
     fn parse_bool(&mut self) -> Result<bool> {
         self.parse::<u32>().map(|v| v == 1)
     }
+}
 
-    fn peek<T: PrimitiveSerde>(&mut self) -> Result<T> {
+impl<'de, T: Buf + PrimitiveSerde> Deserializer<'de, T> {
+    fn peek(&mut self) -> Result<T> {
         let size = T::check_size(&mut self.input)?;
         let mut take = self.input.take(size);
         T::get(&mut take)
     }
-    fn parse<T: PrimitiveSerde>(&mut self) -> Result<T> {
+    fn parse(&mut self) -> Result<T> {
         T::check_size(&mut self.input)?;
         T::get(self.input)
     }
